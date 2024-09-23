@@ -1,0 +1,71 @@
+// tsofiatouito2@gmail.com
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <SFML/Graphics.hpp>
+
+
+using namespace std;
+
+class Player{
+
+    private:
+    string name;                 //The name of the player 
+    double amount_of_money;      //Represent the amount of money the player have
+    bool in_jail;                // True if the player is in Jail
+    bool is_bankrupt;            // True if the player is in bankrupt
+
+
+    sf::Texture playerTexture;    //SFML variables
+    sf::Sprite  playerSprite;
+
+    //Constructor
+    Player::Player(std::string name, double money) : name(name), amount_of_money(money), in_jail(false), is_bankrupt(false){};
+
+
+    public:
+
+    //Build a player object in the start of the game
+    void init_player(std::string name,std::string path_to_img);
+
+
+    //Player pay the rent for landing on other player asset
+    void pay_rent();
+
+
+    //A function to buy an asset
+    void buy_asset();
+
+    double get_amount_of_money() const;
+
+    void sub_money(double);
+
+    void add_money(double);
+
+
+    bool is_in_jail(){
+        return this->in_jail;
+    }
+
+    void set_in_jail();
+
+    bool is_Bankrupt(){
+        return this->is_bankrupt;
+    }
+
+
+    //Get the current position of the player
+    const sf::Vector2f& get_position() const;
+
+
+    //Set a new position for the player according to the dice roll
+    void set_position(const sf::Vector2f& new_position);
+
+
+    //Move the player across the board by a number of steps
+    void move_player(int );
+
+
+};
+
