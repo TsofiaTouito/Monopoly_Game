@@ -4,7 +4,9 @@
 #include <string>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <limits.h>
 
+#include "Square.hpp"
 
 using namespace std;
 
@@ -12,17 +14,22 @@ class Player{
 
     private:
     string name;                 //The name of the player 
-    double amount_of_money;      //Represent the amount of money the player have
+    int money;                //Represent the amount of money the player have
     bool in_jail;                // True if the player is in Jail
     bool is_bankrupt;            // True if the player is in bankrupt
 
+    vector<StreetSquare&> ownedStreets;   //Referance to owned street squares
+    vector<TrainSquare&>  ownedTrain;      //Referance to owned train squares
 
     sf::Texture playerTexture;    //SFML variables
     sf::Sprite  playerSprite;
 
-    //Constructor
-    Player::Player(std::string name, double money) : name(name), amount_of_money(money), in_jail(false), is_bankrupt(false){};
 
+
+    //Constructor
+    Player(std::string name, double money) : name(name), money(money), in_jail(false), is_bankrupt(false){};
+
+    
 
     public:
 
@@ -30,41 +37,44 @@ class Player{
     void init_player(std::string name,std::string path_to_img);
 
 
-    //Player pay the rent for landing on other player asset
-    void pay_rent();
+    bool sub_money(int);
+
+    bool add_money(int);
+
+    //Checks if the player can afford to subtract the given amount of money without quite
+    bool can_afford(int);
 
 
-    //A function to buy an asset
-    void buy_asset();
+    /*Player pay the rent for landing on other player asset
+    Gets a pointer to the player object, and the amount to  */
+    void pay_rent(Player* , int);
 
-    double get_amount_of_money() const;
+    //pay tax for landing on tax square that has owner
+    void pay_company_tax(int, Player*);
 
-    void sub_money(double);
+    //Return the number of train the player have
+    size_t train_num();
 
-    void add_money(double);
+    //Add train to the vector after buy
+    void add_train(TrainSquare&);
 
+    bool owns_all_color(const string& , const vector<StreetSquare&>& ) const;
 
-    bool is_in_jail(){
-        return this->in_jail;
-    }
+    bool can_build_balance(const string& ,  const vector<StreetSquare&>& );
+
+    bool is_in_jail();
 
     void set_in_jail();
 
-    bool is_Bankrupt(){
-        return this->is_bankrupt;
-    }
+    bool is_Bankrupt();
+
 
 
     //Get the current position of the player
     const sf::Vector2f& get_position() const;
 
-
     //Set a new position for the player according to the dice roll
     void set_position(const sf::Vector2f& new_position);
-
-
-    //Move the player across the board by a number of steps
-    void move_player(int );
 
 
 };
