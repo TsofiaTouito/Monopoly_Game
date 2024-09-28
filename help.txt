@@ -1,0 +1,86 @@
+class GameManagement {
+private:
+    std::vector<Player> players; // List of players
+    Board* board; // The game board (assumed to be a singleton)
+    int currentPlayerIndex; // Keeps track of whose turn it is
+
+public:
+    GameManagement(Board* board) : board(board), currentPlayerIndex(0) {}
+
+    // Initialize players (can return by reference if desired)
+    std::vector<Player>& initializePlayers(int numPlayers) {
+        players.clear();
+        for (int i = 0; i < numPlayers; ++i) {
+            players.push_back(Player("Player " + std::to_string(i + 1), i)); // Example constructor
+        }
+        return players;
+    }
+
+    // Simulate rolling two dice
+    int rollDice() {
+        int dice1 = rand() % 6 + 1; // Roll first die (1 to 6)
+        int dice2 = rand() % 6 + 1; // Roll second die (1 to 6)
+        return dice1 + dice2;
+    }
+
+    // Manage the turn order and dice roll
+    void takeTurn() {
+        Player& currentPlayer = players[currentPlayerIndex];
+
+        std::cout << "It's " << currentPlayer.getName() << "'s turn!" << std::endl;
+
+        int diceRoll = rollDice();
+        std::cout << currentPlayer.getName() << " rolled a " << diceRoll << std::endl;
+
+        // Move the player based on the dice roll
+        Square& currentSquare = board->getSquareByPosition(currentPlayer.getPosition());
+        Square& newSquare = board->getSquareByIndex((currentSquare.getIndex() + diceRoll) % board->getTotalSquares());
+
+        // Update player's position
+        currentPlayer.setPosition(newSquare.getPosition());
+
+        // Handle actions on the new square (buy property, pay rent, etc.)
+        handlePlayerLanding(currentPlayer, newSquare);
+
+        // Move to the next player
+	if(double_outcome && double_count != 3){
+		double_count++;
+	}
+	
+	if(double_count == 3){
+		//toTojail
+	}
+	else{
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+	}
+    }
+
+    // Handle what happens when a player lands on a square
+    void handlePlayerLanding(Player& player, Square& square) {
+        std::cout << player.getName() << " landed on " << square.getName() << std::endl;
+
+        // If the square is a property and it's available for purchase
+        if (square.isBuyable() && !square.isOwned()) {
+            player.buyProperty(square);
+        } 
+        // If the square is owned by another player, pay rent
+        else if (square.isOwned() && square.getOwner() != &player) {
+            player.payRent(square.getOwner(), square.getRent());
+        }
+        // You can add other special square handling (Jail, Taxes, etc.)
+    }
+
+    // Main game loop
+    void gameLoop() {
+        while (!isGameOver()) {
+            takeTurn();
+            // Add logic to check for game over, handle special conditions, etc.
+        }
+    }
+
+    // Determine if the game is over
+    bool isGameOver() {
+        // Add your game-ending condition (e.g., all but one player bankrupt)
+        return false;
+    }
+};
