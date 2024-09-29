@@ -24,6 +24,10 @@ class Square {
 
     virtual ~Square() = default;
 
+    const string get_type(){
+        return square_type;
+    }
+
 };
 
 
