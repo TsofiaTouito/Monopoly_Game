@@ -23,6 +23,7 @@ class StreetSquare : public Square {
     int rentWithHotelPrice {550};       // Rent price with hotel
     int streetPrice {250};              // The street's price
     int housePrice {100};               // House price
+    int hotelPrice {500};               //Hotel price
     int houses {0};                     // Number of houses
     bool hasHotel {false};              // True if a hotel exists on the street
 
@@ -38,9 +39,19 @@ class StreetSquare : public Square {
     //Method that checks if the street has an owner
     Player* get_owner();
 
-    void set_owner( Player*) ;
+    //Set new owner
+    void set_owner(Player*);
 
-    //calaulate the rent price as a result of building houses/ hotels
+    //Return the price of the street
+    int get_price();
+
+    int get_house_price();
+
+    int get_hotel_price();
+
+    void set_hotel();
+
+    //calaulate and return the rent price as a result of building houses/ hotels
     int calc_rent();
 
     //Method that checks whether an house can be built
@@ -48,6 +59,13 @@ class StreetSquare : public Square {
 
     //Method that checks whether an hotel can be built
     bool can_build_hotel(Player*);
+
+    //Promote the amount of the houses in the street after building
+    void promote_houses();
+
+    int houses_num();
+
+    int hotel_num();
 
 
 };
