@@ -15,20 +15,28 @@ using namespace std;
 class GameManager{
 
     private:
+    Board* board;
+    int numOfPlayers;
     bool double_outcome {false};
     int double_counter {0};
 
     // Player managment functions :
 
-    /* A function that move the player on the board by the dice roll result (steps variable)
+    //Move the player to a specific square by her index
+    void GameManager::move_player_idx(Player* , size_t);
+
+    /* A function that move the player on the board by the dice roll result 
        gets the new position and recognize the kind of the square */
-    void move_player(Player* player, int steps);
+    void move_player(Player* , int );
 
     //Handle the player's landing based on the respective square's functionality 
-    void handle_player_landing(Player* , StreetSquare& );
+    void handle_player_landing(Player* , Square& );
 
-    //Handle the surprise card functionality
-    void handle_surprise_card(Player* , SurpriseCard&);
+    //Handle the surprise square 
+    void handle_surprise_square(Player* ,SurpriseSquare&);
+
+    //Handle the surprise card by the given index
+    void handle_surprise_card(Player*, size_t);
 
     //Player buy a street
     void buy_street(Player*, StreetSquare&);
