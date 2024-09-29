@@ -13,10 +13,11 @@ using namespace std;
 class Player{
 
     private:
-    string name;                 //The name of the player 
-    int money;                //Represent the amount of money the player have
-    bool in_jail;                // True if the player is in Jail
-    bool is_bankrupt;            // True if the player is in bankrupt
+    string name;                    //The name of the player 
+    int money;                      //Represent the amount of money the player have
+    bool outOfJailCard {false};     //Out of jail card initilize to false
+    bool in_jail;                   // True if the player is in Jail
+    bool is_bankrupt;               // True if the player is in bankrupt
 
     vector<StreetSquare&> ownedStreets;   //Referance to owned street squares
     vector<TrainSquare&>  ownedTrain;      //Referance to owned train squares
@@ -58,9 +59,20 @@ class Player{
     //Add train to the vector after buy
     void add_train(TrainSquare&);
 
+    //Add the street after purche
+    void add_street(StreetSquare&);
+
     bool owns_all_color(const string& , const vector<StreetSquare&>& ) const;
 
     bool can_build_balance(const string& ,  const vector<StreetSquare&>& );
+
+    int houses_in_owned();
+
+    int hotels_in_owned();
+
+    bool get_jail_card();
+
+    void set_jail_card();
 
     bool is_in_jail();
 
