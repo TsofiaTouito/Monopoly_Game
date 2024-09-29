@@ -121,6 +121,11 @@ void Player::add_train(TrainSquare& newTrain){
     this->ownedTrain.push_back(newTrain);
 }
 
+void Player::add_street(StreetSquare& street){
+    this->ownedStreets.push_back(street);
+}
+
+
 //This methode checks if the payer oened all the street in the color group for house building
 
 bool Player::owns_all_color(const string& colorGroup, const vector<StreetSquare&>& allStreets) const{
@@ -169,23 +174,44 @@ return maxHouses - minHouses;
 
 
 
+int Player::houses_in_owned(){
+    int houses = 0;
+
+    //For all street in owned of the player, sum the number of houses
+    for(StreetSquare& street :ownedStreets){
+        houses += street.houses_num();
+    }
+
+    return houses;
+}
+
+
+
+
+int Player::hotels_in_owned(){
+    int hotels = 0;
+
+    //For all street in owned of the player, sum the number of hotels
+    for(StreetSquare& street :ownedStreets){
+        hotels += street.hotel_num();   //return 1 in case of hotel
+    }
+    return hotels;
+}
 
 
 
 
 
+//--------------------------------------Jail handling----------------------------------------------------
 
 
+bool Player::get_jail_card(){
+    return this->outOfJailCard;
+}
 
-
-
-
-
-
-
-
-
-
+void Player::set_jail_card(){
+    this->outOfJailCard = true;
+}
 
 
 
