@@ -18,6 +18,24 @@ void StreetSquare::set_owner(Player* newOwner){
 
 
 
+
+int StreetSquare::get_price(){
+    return this->streetPrice;
+}
+
+int StreetSquare::get_house_price(){
+    return this->housePrice;
+}
+
+int StreetSquare::get_hotel_price(){
+    return this->hotelPrice;
+}
+
+void StreetSquare::set_hotel(){
+    this->hasHotel = true;
+}
+
+
 //calaulate the rent price as a result of building houses/ hotels
 int StreetSquare::calc_rent(){
 
@@ -46,5 +64,19 @@ bool StreetSquare::can_build_house(Player* player){
 
 
 bool StreetSquare::can_build_hotel(Player* player){
-    return (this->owner == player) && (this->houses == 4);
+    return (this->owner == player) && (this->houses == 4) && !this->hasHotel;
+}
+
+
+void StreetSquare::promote_houses(){
+    this->houses++;
+}
+
+int StreetSquare::houses_num(){
+    return this->houses;
+}
+
+
+int StreetSquare::hotel_num(){
+    return hasHotel ? 1 : 0;
 }
