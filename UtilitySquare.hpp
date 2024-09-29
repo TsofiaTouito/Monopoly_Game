@@ -29,6 +29,18 @@ class TrainSquare : public Square{
     TrainSquare(const std::string& name, int index, sf::FloatRect square_area) : Square(name, index,square_area ), owner(nullptr) {};
 
 
+
+    Player* get_owner(){
+        return this->owner;
+    }
+
+
+
+    void set_owner(Player* newOwner){
+        this->owner = newOwner;
+    }
+
+
     /*Calculate the rent price recpectively to the number of trains the owner have:
     One train = 50 , two trains = 100, three trains = 150, four trains = 200*/
     int calc_rent(Player* player){
@@ -38,7 +50,7 @@ class TrainSquare : public Square{
     }
 
     //Return the train price
-    int get_prrice(){
+    int get_price(){
         return this->price;
     }
 
@@ -67,6 +79,11 @@ class CompanySquare : public Square{   //For water & electric company square
     Player* get_owner(){
         return this->owner;
     }
+
+    int get_price(){
+        return this->companyPrice;
+    }
+    
 
 };
 
