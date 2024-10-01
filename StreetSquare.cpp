@@ -6,13 +6,13 @@
 
 
 
-Player* StreetSquare::get_owner(){
+shared_ptr<Player> StreetSquare::get_owner(){
     return this->owner;
 }
 
 
 
-void StreetSquare::set_owner(Player* newOwner){
+void StreetSquare::set_owner(shared_ptr<Player> newOwner){
     this->owner = newOwner;
 }
 
@@ -57,13 +57,13 @@ int StreetSquare::calc_rent(){
 
 
 //Abilitiy to buy a house in the street aspect
-bool StreetSquare::can_build_house(Player* player){
+bool StreetSquare::can_build_house(shared_ptr<Player> player){
         return (this->owner == player) && this->houses < 4 && !this->hasHotel;
     }
 
 
 
-bool StreetSquare::can_build_hotel(Player* player){
+bool StreetSquare::can_build_hotel(shared_ptr<Player> player){
     return (this->owner == player) && (this->houses == 4) && !this->hasHotel;
 }
 
