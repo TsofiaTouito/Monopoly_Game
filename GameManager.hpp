@@ -5,10 +5,14 @@ using namespace std;
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <memory>
+#include <algorithm>
+
 #include "Board.hpp"
 #include "Square.hpp"
 #include "Player.hpp"
 #include "SpecialCardSquare.hpp"
+#include "GUI_Manager.hpp"
 
 
 
@@ -16,86 +20,105 @@ class GameManager{
 
     private:
     Board* board;
+
     int numOfPlayers;
+    int currPlayerIdx;
     bool double_outcome {false};
     int double_counter {0};
+    Drawable obj;      //Store the image path
 
-    // Player managment functions :
+
+    //------------------------landing handling----------------------------------
+    
+
+    void handle_street_landing(shared_ptr<Player>, StreetSquare&);
+
+    void handle_train_landing(shared_ptr<Player> , TrainSquare& );
+
+    void handle_company_square(shared_ptr<Player>, CompanySquare&, int);
+
+
+    //Handle the player's landing based on the respective square's functionality 
+    void handle_player_landing(shared_ptr<Player> , Square& , int);
+
+
+
+    //------------------------Player managment----------------------------------
 
     //Move the player to a specific square by her index
-    void GameManager::move_player_idx(Player* , size_t);
+    void move_player_idx(shared_ptr<Player>  , size_t);
 
     /* A function that move the player on the board by the dice roll result 
        gets the new position and recognize the kind of the square */
-    void move_player(Player* , int );
-
-    //Handle the player's landing based on the respective square's functionality 
-    void handle_player_landing(Player* , Square& );
+    void move_player(shared_ptr<Player> , int );
 
     //Handle the surprise square 
-    void handle_surprise_square(Player* ,SurpriseSquare&);
+    void handle_surprise_square(shared_ptr<Player> ,SurpriseSquare&);
 
     //Handle the surprise card by the given index
-    void handle_surprise_card(Player*, size_t);
+    void handle_surprise_card(shared_ptr<Player> , size_t);
 
     //Player buy a street
-    void buy_street(Player*, StreetSquare&);
+    void buy_street(shared_ptr<Player>, StreetSquare&);
 
     //Player buy a street
-    void buy_train(Player*, TrainSquare&);
+    void buy_train(shared_ptr<Player> , TrainSquare&);
     
     //Player buy a company
-    void buy_company(Player*, CompanySquare&); 
+    void buy_company(shared_ptr<Player> , CompanySquare&); 
 
     //Player buy an house
-    void build_house(Player*, StreetSquare&,vector<StreetSquare&>&);
+    void build_house(shared_ptr<Player> , StreetSquare&,vector<shared_ptr<StreetSquare>>);
 
     //Playeer buy an hotel
-    void build_hotel(Player*, StreetSquare&,vector<StreetSquare&>&);
+    void build_hotel(shared_ptr<Player> , StreetSquare&,vector<shared_ptr<StreetSquare>>);
+
+    //roll the dice
+    int roll_dice();
 
 
+    //Enter the player in jail / get him out 
+    void set_jail_state(shared_ptr<Player>, bool);
 
 
+    //------------------------Bankrupt handling--------------------------------
 
+    //Handle nankruptcy as a result of getting to 0 NIS
+    void handle_nankruptcy(shared_ptr<Player>);
+
+    //Handle nankruptcy as a result of lack of ability to pay for other player 
+    void handle_nankruptcy_(shared_ptr<Player>, shared_ptr<Player>);
+    
+
+    //--------------------------Game flow managment--------------------------------
 
     public:
-
-    // Game flow managment :
-
-
-    int roll_dice() {
-
-        int dice1 = rand() % 6 + 1;   // Roll first die (1 to 6)
-        int dice2 = rand() % 6 + 1;   // Roll second die (1 to 6)
-
-        // The outcome is a double 
-        if(dice1 == dice2){
-            this->double_outcome = true;
-            this->double_counter++;
-        }
-        return dice1 + dice2;
-    }
+    vector<shared_ptr<Player>> players;
 
 
-/*
-    // Start the game
-    void start_game();
 
-    // Advances to the next player’s turn.
-    void next_turn();
+    //-----------Turn Handling----------------
+    //Play the turn of the current player
+    void play_turn();
 
-    // Checks if the game is over
+    //Returns true if the game is over
     bool is_over();
 
-    // Returns the player whose turn it is.
-    Player* get_current_player();
+    //Announce the winner of the game
+    void announce_winner(shared_ptr<Player>);
 
-    // Manages a player going bankrupt.
-    void handel_Nankruptcy(Player*);
 
-    //Announces the winner and ends the game.
-    void display_winner();
+    //----------Initilize game---------------
+    //Create the players objects
+    void initialize_players(int );
 
-*/
+    //Initilize and draw the players on the board, the board – on the given window
+    void initialize_game(sf::RenderWindow& window );
+
+    // Start the game
+    void start_game(sf::RenderWindow&);
+
+
+
 };
 
