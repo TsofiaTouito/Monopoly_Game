@@ -3,6 +3,33 @@
 #include "GameManager.hpp"
 
 
+
+sf::Vector2f GameManager::calc_player_position(std::shared_ptr<Player> player, Square& square) {
+
+    // Get the total number of players on this square using square_area.contains()
+    int playersOnSquare = 0;
+    for (const auto& p : players) {
+        // Dereference the shared_ptr to access the player's position
+        sf::Vector2f playerPos(p->get_position()); // assuming Player has get_position_x and get_position_y methods
+        if (square.square_area.contains(playerPos)) {
+            playersOnSquare++;
+        }
+    }
+
+    // The base position of the square (top-left corner)
+    sf::Vector2f squarePosition(square.square_area.left, square.square_area.top);
+
+    // Calculate offset based on the number of players on the same square to avoid overlapping
+    float offsetX = 10.0f * (playersOnSquare % 2); // adjust horizontally for players
+    float offsetY = 10.0f * (playersOnSquare / 2); // adjust vertically if more than 2 players
+
+    // Final player position: the base square position plus some offset
+    sf::Vector2f playerPosition = squarePosition + sf::Vector2f(offsetX, offsetY);
+
+    return playerPosition;
+}
+
+
 void GameManager::move_player_idx(shared_ptr<Player> player, size_t index){
 
     //Gets the current position of the player & the square he is on
@@ -18,8 +45,8 @@ void GameManager::move_player_idx(shared_ptr<Player> player, size_t index){
         player->add_money(200);
     }
 
-    // Create an sf::Vector2f from the new square's top-left corner
-    sf::Vector2f new_position(new_square.square_area.left, new_square.square_area.top);
+    //Calculate the player position on the new square
+    sf::Vector2f new_position = calc_player_position(player, new_square);
 
     //Set the player on the new square
     player->set_position(new_position);
@@ -27,6 +54,7 @@ void GameManager::move_player_idx(shared_ptr<Player> player, size_t index){
     handle_player_landing(player, new_square, steps%40);
 
 }
+
 
 
 
@@ -663,6 +691,8 @@ void GameManager::handle_nankruptcy(shared_ptr<Player> player){
         this->players.erase(it);
     }
 
+    this->numOfPlayers--;
+
 }
 
 
@@ -683,6 +713,7 @@ void GameManager::handle_nankruptcy_(shared_ptr<Player> bankruptPlayer, shared_p
         this->players.erase(it);
     }
 
+    this->numOfPlayers--;
 }
 
 
@@ -827,17 +858,59 @@ void GameManager::announce_winner(shared_ptr<Player> player){
 
 //-------------------------------------------Game initilization-----------------------------------------------------
 
+sf::Vector2f GameManager::get_start_position(int index){
+
+    //Define the position
+    sf::Vector2f player1(900.f, 860.f);
+    sf::Vector2f player2(900.f, 880.f);
+    sf::Vector2f player3(900.f, 900.f);
+    sf::Vector2f player4(900.f, 930.f);
+    sf::Vector2f player5(950.f, 860.f);
+    sf::Vector2f player6(950.f, 880.f);
+    sf::Vector2f player7(950.f, 900.f);
+    sf::Vector2f player8(950.f, 930.f);
 
 
-void GameManager::initialize_players(int numOfPlayers){
+    switch (index) {
+        case 1:
+            return player1;
+            
+        case 2:
+            return player2;
 
+        case 3:
+            return player3;
+
+        case 4:
+            return player4;
+
+        case 5:
+            return player5;
+
+        case 6:
+            return player6;
+
+        case 7:
+            return player7;
+
+        case 8:
+            return player8;
+
+        default:
+            return; // Handle invalid index
+}
+}
+
+
+void GameManager::initialize_players(int numOfPlayers, sf::RenderWindow& window){
 
     for(int i = 1 ; i <= numOfPlayers ; i++){
         string name = "Player " + to_string(i);   //Name of the player is by his index
 
         shared_ptr<Player> player = make_shared<Player>(name, 1500);      //Initilize the player object 
-        player->init_player_vis(this->obj.get_path_by_idx(i));
+        player->init_player_vis(this->obj.get_path_by_idx(i) ,window);
         players.push_back(player);
+        player->set_position(get_start_position(i));  //locat player on board
     }
 
 }
@@ -853,14 +926,6 @@ void GameManager::initialize_game(sf::RenderWindow& window ){
 
     //Draw the board on the given window
     board->render(window);
-/*
-    //Set the players the start position
-    for(int i = 0 ; i < players.size() ; i++){
-        players[i]->set_position()
-
-    }
-
-*/
 
 }
 
@@ -873,8 +938,10 @@ void GameManager::start_game(sf::RenderWindow& gameWindow){
     cin >> this->numOfPlayers;
 
     // Initilize the player object & the game board
-    initialize_players(this->numOfPlayers);
     initialize_game(gameWindow);
+    initialize_players(this->numOfPlayers, gameWindow);
 
 }
+
+
 
