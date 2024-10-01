@@ -20,22 +20,6 @@ string Player::get_name(){
 
 
 
-//Initilze a player object for the start of the game 
-void Player::init_player_vis(std::string path_to_img){
-
-
-    //Open the player image
-    if(!this->playerTexture.loadFromFile(path_to_img)){
-        throw std::string("Player image failed to open .");
-    }
-
-    //enable to draw the player
-    this->playerSprite.setTexture(this->playerTexture);
-    
-}
-
-
-
 //-------------------------------------Money handeling of the player--------------------------------------
 
 
@@ -242,13 +226,23 @@ void Player::set_jail_card(bool val){
 
 
 
-void Player::draw(sf::RenderWindow& window){
 
-    window.draw(this->playerSprite);     //Draw the player object
-    window.display();
+
+
+//Initilze a player object for the start of the game 
+void Player::init_player_vis(string path, sf::RenderWindow& window){
+
+
+    //Open the player image
+    if(!this->playerTexture.loadFromFile(path)){
+        throw std::string("Player image failed to open .");
+    }
+
+    //enable to draw the player
+    this->playerSprite.setTexture(this->playerTexture);
+    window.draw(playerSprite);
+
 }
-
-
 
 const sf::Vector2f& Player::get_position() const{
 
