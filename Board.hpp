@@ -6,7 +6,12 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <memory> 
 #include "Square.hpp"
+#include "StreetSquare.hpp"
+
+
+using namespace std;
 
 class Board {
 
@@ -14,8 +19,8 @@ class Board {
     sf::Texture boardTexture;
     sf::Sprite  boardSprite;
     static Board* singletonBoard;                //Singleton instance
-    std::vector<unique_ptr<Square>> squares;     //represent the squares on board
-
+    vector<unique_ptr<Square>> squares;          //represent the squares on board
+    vector<shared_ptr<StreetSquare>> allStreets;
     Board();                                     //private constructor for Singleton
 
     
@@ -31,6 +36,9 @@ class Board {
     Square& get_square_by_position(const sf::Vector2f& position) ;
 
     Square& get_square_by_index(int) ;
+
+
+    vector<shared_ptr<StreetSquare>> get_allStreets();
 
 
 };
