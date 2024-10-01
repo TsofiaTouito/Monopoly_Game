@@ -19,24 +19,28 @@ class Player{
     bool in_jail;                   // True if the player is in Jail
     bool is_bankrupt;               // True if the player is in bankrupt
 
-    vector<StreetSquare&> ownedStreets;   //Referance to owned street squares
-    vector<TrainSquare&>  ownedTrain;      //Referance to owned train squares
-
     sf::Texture playerTexture;    //SFML variables
     sf::Sprite  playerSprite;
 
+    vector<StreetSquare*> ownedStreets;   //Referance to owned street squares
+    vector<TrainSquare*>  ownedTrain;      //Referance to owned train squares
 
 
-    //Constructor
-    Player(std::string name, double money) : name(name), money(money), in_jail(false), is_bankrupt(false){};
-
-    
+    bool operator!=(const Player& other) const;
 
     public:
 
-    //Build a player object in the start of the game
-    void init_player(std::string name,std::string path_to_img);
+    int turnsInJail {0};
 
+    //Constructor
+    Player(std::string name, int money) : name(name), money(money), in_jail(false), is_bankrupt(false){};
+
+    string get_name();
+
+    //Build a player object in the start of the game
+    void init_player_vis(std::string path_to_img);
+
+    int get_money() const;
 
     bool sub_money(int);
 
@@ -48,10 +52,7 @@ class Player{
 
     /*Player pay the rent for landing on other player asset
     Gets a pointer to the player object, and the amount to  */
-    void pay_rent(Player* , int);
-
-    //pay tax for landing on tax square that has owner
-    void pay_company_tax(int, Player*);
+    bool pay_rent(shared_ptr<Player> , int);
 
     //Return the number of train the player have
     size_t train_num();
@@ -62,9 +63,11 @@ class Player{
     //Add the street after purche
     void add_street(StreetSquare&);
 
-    bool owns_all_color(const string& , const vector<StreetSquare&>& ) const;
+    
 
-    bool can_build_balance(const string& ,  const vector<StreetSquare&>& );
+    bool owns_all_color(const string& , const vector<shared_ptr<StreetSquare>>) const;
+
+    bool can_build_balance(const string& ,  vector<shared_ptr<StreetSquare>> );
 
     int houses_in_owned();
 
@@ -72,15 +75,22 @@ class Player{
 
     bool get_jail_card();
 
-    void set_jail_card();
+    void set_jail_card(bool);
 
     bool is_in_jail();
 
-    void set_in_jail();
+    //For free& set the player in jail
+    void jail_state(bool);
 
     bool is_Bankrupt();
 
+    void move_assets(shared_ptr<Player>);
 
+    void clear_properties();
+
+
+    //Draw the player onject
+    void draw(sf::RenderWindow& ) ;
 
     //Get the current position of the player
     const sf::Vector2f& get_position() const;
