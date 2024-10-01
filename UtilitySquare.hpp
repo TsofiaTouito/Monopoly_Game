@@ -21,7 +21,7 @@ class TrainSquare : public Square{
 
     private:
 
-    Player* owner;
+    shared_ptr<Player> owner;
     int price {200} ;       //The train price
 
 
@@ -30,22 +30,22 @@ class TrainSquare : public Square{
 
 
 
-    Player* get_owner(){
+    shared_ptr<Player> get_owner(){
         return this->owner;
     }
 
 
 
-    void set_owner(Player* newOwner){
+    void set_owner(shared_ptr<Player> newOwner){
         this->owner = newOwner;
     }
 
 
     /*Calculate the rent price recpectively to the number of trains the owner have:
     One train = 50 , two trains = 100, three trains = 150, four trains = 200*/
-    int calc_rent(Player* player){
+    int calc_rent(){
 
-        int res = player->train_num() * 50;   
+        int res = owner->train_num() * 50;   
         return res;
     }
 
@@ -66,17 +66,17 @@ class CompanySquare : public Square{   //For water & electric company square
 
     private:
 
-    Player* owner;
+    shared_ptr<Player> owner;
     int companyPrice {150};    //The company price
 
     public:
     CompanySquare(const std::string& name, int index, sf::FloatRect square_area) : Square(name, index,square_area), owner(nullptr) {};
 
-    void set_owner(Player* player){
+    void set_owner(shared_ptr<Player> player){
         this->owner = player;
     }
 
-    Player* get_owner(){
+    shared_ptr<Player> get_owner(){
         return this->owner;
     }
 
