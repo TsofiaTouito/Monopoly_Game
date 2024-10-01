@@ -38,9 +38,6 @@ class Player{
     //Return the player name
     string get_name();
 
-    //Build a player object at the start of the game
-    void init_player_vis(std::string path_to_img);
-
 
     //-----------Player's money handling-----------------
 
@@ -105,9 +102,12 @@ class Player{
     void clear_properties();
 
 
-    //-----------SFML handling-----------------
+    //-------------------SFML handling------------------------
     sf::Texture playerTexture;      //SFML variables
     sf::Sprite  playerSprite;
+
+    //Build a player object at the start of the game
+    void init_player_vis(std::string path_to_img, sf::RenderWindow& window);
 
     //Get the current position of the player
     const sf::Vector2f& get_position() const;
