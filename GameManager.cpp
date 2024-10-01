@@ -3,8 +3,7 @@
 #include "GameManager.hpp"
 
 
-
-void GameManager::move_player_idx(Player* player, size_t index){
+void GameManager::move_player_idx(shared_ptr<Player> player, size_t index){
 
     //Gets the current position of the player & the square he is on
     Square& curr_square = board->get_square_by_position(player->get_position());
@@ -12,10 +11,10 @@ void GameManager::move_player_idx(Player* player, size_t index){
     //Calculate the new position by the dice roll result
     Square& new_square= board->get_square_by_index(index); // 40 squares is on the board
 
-
+    int steps = index + curr_square.index;
     //Passing the starting square entitles you to NIS 200 
     //In porpuse to get the jail square, the player donsen't collect 200 NIS
-    if(index + curr_square.index >= 40 && new_square.get_type() != "Go To Jail Square"){
+    if(steps >= 40 && new_square.get_type() != "Go To Jail Square"){
         player->add_money(200);
     }
 
@@ -25,13 +24,13 @@ void GameManager::move_player_idx(Player* player, size_t index){
     //Set the player on the new square
     player->set_position(new_position);
 
-    handle_player_landing(player, new_square);
+    handle_player_landing(player, new_square, steps%40);
 
 }
 
 
 
-void GameManager::move_player(Player* player, int rollDice){
+void GameManager::move_player(shared_ptr<Player>  player, int rollDice){
 
     //Gets the current position of the player & the square he is on
     Square& curr_square = board->get_square_by_position(player->get_position());
@@ -52,20 +51,252 @@ void GameManager::move_player(Player* player, int rollDice){
     player->set_position(new_position);
 
     //handle the square functionality
-    handle_player_landing(player, new_square);
+    handle_player_landing(player, new_square, rollDice);
 
     }
+
+
+//---------------------------------------Handle player landing---------------------------------------------------------
+
+
+
+void GameManager::handle_street_landing(shared_ptr<Player> player, StreetSquare& street){
+    cout << player->get_name() <<" land in " << street.streetName <<endl;
+    cout << "The amount of money you have is :" << player->get_money() <<endl;
+
+        //In case the street has no owner
+        if(!street.get_owner()){
+            cout << "The street has no owner, would you like to buy it in: " << street.get_price() <<" NIS ? \n Enter: Y (for yes) or N (For no)" << endl;
+            char ans;
+            cin>>ans;//Get the input from the player
+
+            if(ans == 'Y' ){
+                //Player want to buy the street
+                buy_street(player, street);
+            }
+
+            else{
+                cout << "You decide to not buy ." <<endl;
+            }
+        }
+
+        //If the owner of the street is player
+        if(street.get_owner() = player){
+            cout << "You are the owner of " << street.streetName << " ." << " Would you like to build an house or hotle ?" << endl;
+            cout << "If you want to build an house enter A, If you want to build an hotel enter B, for none enter N ." <<endl;
+            char ans;
+            cin>>ans;
+
+            vector<shared_ptr<StreetSquare>> allStreets = board->get_allStreets();
+
+            if(ans == 'A'){
+                cout << player->get_name() << " building an house ." << endl;
+                build_house(player, street, allStreets);
+            }
+
+            if(ans == 'B'){
+                cout << player->get_name() << " building an hotel ." << endl;
+                build_hotel(player, street, allStreets);
+            }
+
+            else{
+                //Player enter None
+                cout << "You decide to not buy ." << endl;
+            }
+        }
+
+
+        else{         
+            /* Street already has an owner, then player must pay rent
+            If the player cant afford the rent, definehim as bankrupt*/
+            int rent = street.calc_rent();
+
+            if(!player->can_afford(rent)){
+                cout << "The player can't afford the rent price ." << endl;
+                handle_nankruptcy_(player, street.get_owner());   
+            }
+
+            cout << player->get_name() << "Pay rent of :" << rent << "NIS , to " << street.get_owner()->get_name() << endl;
+            player->pay_rent(street.get_owner(), rent);
+        }
+}
+
+
+
+void GameManager::handle_train_landing(shared_ptr<Player> player, TrainSquare& train){
+
+    cout << player->get_name() <<" land on Train square ." << endl;
+
+        //In case the train has no owner
+        if(!train.get_owner()){
+            cout << "The amount of money you have is :" << player->get_money() <<endl;
+            cout << "The train has no owner, would you like to buy it in: " << train.get_price() <<" NIS ? \n Enter: Y (for yes) or N (For no)" << endl;
+            char ans;
+            cin>>ans;//Get the input from the player
+
+            if(ans == 'Y' ){
+                //Player want to buy the train
+                buy_train(player, train);
+            }
+
+            else{
+                cout << "You decide to not buy ." <<endl;
+            }
+
+        }
+
+        //If the owner of the train is player
+        if(train.get_owner() = player){
+            cout << "You are the owner of the Train . " << endl;    
+        }
+
+        else{
+   
+            /* The train already has an owner, then player must pay rent
+            If the player cant afford the rent, define him as bankrupt*/
+            int rent = train.calc_rent();
+            cout << "You land on owned train, and must pay rent of :" << rent << "NIS" << endl;
+
+            if(!player->can_afford(rent)){
+                cout << "The player can't afford the rent price ." << endl;
+                handle_nankruptcy_(player, train.get_owner());   
+            }
+
+            cout << player->get_name() << "Pay rent of :" << rent << "NIS , to " << train.get_owner()->get_name() << endl;
+            player->pay_rent(train.get_owner(), rent);
+        }
+
+}
+
+
+
+void GameManager::handle_company_square(shared_ptr<Player> player, CompanySquare& company, int diceRoll){
+
+        //In case the company has no owner
+        if(!company.get_owner()){
+            cout << "The amount of money you have is :" << player->get_money() <<endl;
+            cout << "The company has no owner, would you like to buy it in: " << company.get_price() <<" NIS ? \n Enter: Y (for yes) or N (For no)" << endl;
+            char ans;
+            cin>>ans;//Get the input from the player
+
+            if(ans == 'Y' ){
+                //Player want to buy the company
+                buy_company(player, company);
+            }
+
+            else{
+                cout << "You decide to not buy ." <<endl;
+            }
+
+        }
+
+        //If the owner of the train is player
+        if(company.get_owner() = player){
+            cout << "You are the owner of the company . " << endl;    
+        }
+
+        else{
+   
+            /* The company already has an owner, then player must pay rent of : dice roll result*10
+            If the player cant afford the rent, define him as bankrupt*/
+            int rent = diceRoll*10;
+            cout << "You land on owned company, and must pay rent of :" << rent << "NIS" << endl;
+
+            if(!player->can_afford(rent)){
+                cout << "The player can't afford the rent price ." << endl;
+                handle_nankruptcy_(player, company.get_owner());   
+            }
+
+            cout << player->get_name() << "Pay rent of :" << rent << "NIS , to " << company.get_owner()->get_name() << endl;
+            player->pay_rent(company.get_owner(), rent);
+        }
+}
+
+
 
 
 
 
 //Handle the player's landing based on the respective square's functionality 
-void handle_player_landing(Player* , Square& );
+void GameManager::handle_player_landing(shared_ptr<Player>  player, Square& square, int diceRoll){
 
+    if(square.get_type() == "Street Square"){
+        
+        StreetSquare& street = dynamic_cast<StreetSquare&>(square);
+        handle_street_landing(player, street);
+        return;
+    }
+
+    if(square.get_type() == "Train Square"){
+        
+        TrainSquare& train = dynamic_cast<TrainSquare&>(square); 
+        handle_train_landing(player, train);
+        return;
+    }
+
+
+    if(square.get_type() == "Surprise Square"){
+        
+        SurpriseSquare& surprise = dynamic_cast<SurpriseSquare&>(square); 
+        handle_surprise_square(player, surprise);
+        return;
+    }
+
+
+    if(square.get_type() == "Free Parking Square"){
+        cout<< player->get_name() <<" land in free parking square, end's player turn. ";
+        return;
+    }
+
+
+    if(square.get_type() == "Company Square"){
+        cout<< player->get_name() <<" land in free Company square .";
+
+        CompanySquare& company = dynamic_cast<CompanySquare&>(square); 
+        handle_company_square(player, company, diceRoll);
+    }
+
+
+
+    if(square.get_type() == "Tax Square"){
+
+        cout<< player->get_name() <<" land in free Company square .";
+
+        TaxSquare& tax = dynamic_cast<TaxSquare&>(square); 
+        
+            if(!player->can_afford(tax.get_tax())){
+                cout << "The player can't afford the tax price ." << endl;
+                handle_nankruptcy(player);   
+            }
+            else{
+                cout << player->get_name() << "Pay tax of : 100 NIS ." << endl;
+                player->sub_money(tax.get_tax());
+            }
+    }
+
+
+    if(square.get_type() == "Jail Square"){
+        cout << player->get_name() << "land on jail square ." << endl;
+    }
+    
+    if(square.get_type() == "Go to Jail Square"){
+
+        cout << player->get_name() << "land on go to jail square ." << endl;
+    
+        //sent player to jail
+        set_jail_state(player, true);
+    }
+
+    if(square.get_type() == "Start Square"){
+        cout << player->get_name() << "land on Start square ." << endl;
+    }
+
+
+}
 
 
 //Handle the surprise card functionality
-void GameManager::handle_surprise_square(Player* player,SurpriseSquare& surprise){
+void GameManager::handle_surprise_square(shared_ptr<Player> player, SurpriseSquare& surprise){
     
     //Gets a random index to dynamically select a surprise card
     size_t index = surprise.get_card_index();
@@ -76,7 +307,7 @@ void GameManager::handle_surprise_square(Player* player,SurpriseSquare& surprise
 }
 
 
-void GameManager::handle_surprise_card(Player* player, size_t index){
+void GameManager::handle_surprise_card(shared_ptr<Player> player, size_t index){
         
     switch(index){
             
@@ -101,7 +332,7 @@ void GameManager::handle_surprise_card(Player* player, size_t index){
         Square& curr_square = board->get_square_by_position(player->get_position());
         size_t new_index = (curr_square.index - 3)%40;    //go back 3 squares
 
-        move_player_idx(player, new_index);
+        GameManager::move_player_idx(player, new_index);
         break;
         
 
@@ -161,7 +392,7 @@ void GameManager::handle_surprise_card(Player* player, size_t index){
 
         case 10:
         //10. Get out of Jail Free – This card may be kept until needed or traded
-        player->set_jail_card();
+        player->set_jail_card(true);
         //Get the player out_of_jail
         break;
 
@@ -207,7 +438,7 @@ void GameManager::handle_surprise_card(Player* player, size_t index){
 
 
 //Player buy a street
-void GameManager::buy_street(Player* buyer, StreetSquare& street){
+void GameManager::buy_street(shared_ptr<Player> buyer, StreetSquare& street){
 
     if(street.square_type != "Street Square"){
         cout << "The square is'nt a StreetSquare ." << endl;
@@ -242,7 +473,8 @@ void GameManager::buy_street(Player* buyer, StreetSquare& street){
 
 
 //Player buy a train
-void GameManager::buy_train(Player* buyer, TrainSquare& train){
+void GameManager::buy_train(shared_ptr<Player> buyer, TrainSquare& train){
+
 
     if(train.square_type != "Train Square"){
         cout << "The square is'nt a TrainSquare ." << endl;
@@ -275,7 +507,7 @@ void GameManager::buy_train(Player* buyer, TrainSquare& train){
 
 
 //Player buy a company
-void buy_company(Player* buyer, CompanySquare& company){
+void GameManager::buy_company(shared_ptr<Player>  buyer, CompanySquare& company){
 
     //Check if the company already have an owner
     if(company.get_owner() != nullptr){
@@ -305,7 +537,7 @@ void buy_company(Player* buyer, CompanySquare& company){
 
 
 //Player buy an house
-void build_house(Player* buyer, StreetSquare& street,vector<StreetSquare&>& allStreets){
+void GameManager::build_house(shared_ptr<Player> buyer, StreetSquare& street,vector<shared_ptr<StreetSquare>> allStreets){
 
     //Checks whether an house can be built & the buyer is the owner of the street
     if(!street.can_build_house(buyer)){
@@ -349,7 +581,7 @@ void build_house(Player* buyer, StreetSquare& street,vector<StreetSquare&>& allS
 
 
 //Player buy an hotel
-void build_hotel(Player* buyer, StreetSquare& street,vector<StreetSquare&>& allStreets){
+void GameManager::build_hotel(shared_ptr<Player> buyer, StreetSquare& street,vector<shared_ptr<StreetSquare>> allStreets){
 
     //Checks if the buyer is the the owner of the street & the street owned 4 houses in his ownership
     if(street.can_build_hotel(buyer)){
@@ -371,6 +603,256 @@ void build_hotel(Player* buyer, StreetSquare& street,vector<StreetSquare&>& allS
     
     //Update the street object that hotel has been build
     street.set_hotel();
+
+}
+
+
+
+
+//----------------------------------------------Jail handling-------------------------------------------------------
+
+void GameManager::set_jail_state(shared_ptr<Player> player, bool state){
+    
+    //If the player have the jail card, we don't send him to jail
+    if(player->get_jail_card() && state){
+        player->set_jail_card(false);    //update the card usage
+        player->jail_state(false);       //Jail state of the player is false
+        return;
+    }
+
+    //Set the new state
+    player->jail_state(state);
+
+    //If we set the player in jail, then move him to the jail square
+    if(state && player->get_jail_card()){
+        move_player_idx(player, 10);  //move the player to jail square (index 10)
+    }
+
+}
+
+//-------------------------------------------Nankruptcy handle---------------------------------------------------
+
+
+
+
+void GameManager::handle_nankruptcy(shared_ptr<Player> player){
+
+    cout<< player->get_name() << " is bankrupt ." <<endl;
+
+    // Handle player's properties (auction, return to the bank, etc.)
+    player->clear_properties(); 
+
+    // Remove the player from the game
+    auto it = remove(this->players.begin(), this->players.end(), player);
+
+    if (it != this->players.end()) {
+        this->players.erase(it);
+    }
+
+}
+
+
+
+
+
+void GameManager::handle_nankruptcy_(shared_ptr<Player> bankruptPlayer, shared_ptr<Player> player){
+
+
+    cout<< bankruptPlayer->get_name() << " is bankrupt ." <<endl;
+    
+    //All the assets of the bankrupt player is move to the player who owns the debt
+    bankruptPlayer->move_assets(player);
+
+    // Remove the player from the game
+    auto it = remove(this->players.begin(), this->players.end(), player);
+
+    if (it != this->players.end()) {
+        this->players.erase(it);
+    }
+
+}
+
+
+
+
+//----------------------------------------------Turn Handling-----------------------------------------------------
+  
+  
+  
+  
+int GameManager::roll_dice() {
+
+    int dice1 = rand() % 6 + 1;   // Roll first die (1 to 6)
+    int dice2 = rand() % 6 + 1;   // Roll second die (1 to 6)
+
+    // The outcome is a double 
+    if(dice1 == dice2){
+        this->double_outcome = true;
+        this->double_counter++;
+    }
+    return dice1 + dice2;
+}
+
+
+
+
+void GameManager::play_turn(){
+
+    //Get the corrent player 
+    shared_ptr<Player> currPlayer = players[currPlayerIdx];
+    cout << "Current player turn: " << currPlayer->get_name() << endl;
+
+    if(currPlayer->is_in_jail()){
+
+        if(currPlayer->turnsInJail <= 3){
+
+            //Promote the turns the player is in jail
+            currPlayer->turnsInJail++;
+
+            cout << "The player now is in jail for "<< currPlayer->turnsInJail << " turns .";
+            cout << "Promot the turn to the next player ." << endl;
+
+            //Promote the turn to the next player
+            currPlayerIdx = (currPlayerIdx + 1) % players.size();
+            return;
+        }
+
+        //The player get out from jail in this turn
+        else if(currPlayer->turnsInJail > 3){
+
+            int diceRoll = roll_dice();
+                
+            //Condition to get out from jail : Pay 50 NIS or double dice roll outcome
+            if(!currPlayer->can_afford(50) && !double_outcome){
+                cout << "the player can't afford the price to get out from jail and the outcome isn't double . " << endl;
+                //The player must leave the game
+                handle_nankruptcy(currPlayer);
+            }
+
+            if(double_outcome || currPlayer->sub_money(50)){
+                set_jail_state(currPlayer, false);
+            }
+        }
+
+    }
+
+    //The corrent player isn't in jail || release now from jail
+    else{
+        
+        //roll the dice
+        int diceRoll = roll_dice();
+
+        //move the player according to the roll dice result and handle landing
+        move_player(currPlayer, diceRoll);
+
+        //In the 3 time the outcom is double, the player sent into jail
+        if(double_counter >= 3){
+            set_jail_state(currPlayer, true);
+        }
+
+        //Another turn for the current player
+        if(double_outcome && double_counter != 3){
+            double_counter++;
+            cout << currPlayer->get_name() <<" entitled to another turn ." << endl;
+        }
+
+        //Promote the corrent player index
+        else{
+            currPlayerIdx = (currPlayerIdx + 1) % players.size();
+        }
+    }
+
+}
+
+
+
+
+bool GameManager::is_over(){
+
+bool win = false;
+shared_ptr<Player> winner;
+
+    //Player win if he is the only one that left in the game
+    if(this->players.size() ==1){
+        win = true;
+        announce_winner(players[0]);
+    }
+
+    //Player win if he have 4000 amount of money
+    for( auto player : this->players){
+
+        if(player->get_money() >= 4000){
+            winner = player;
+            win = true;
+            announce_winner(player);
+        }
+    }
+    
+return win;
+}
+
+
+
+void GameManager::announce_winner(shared_ptr<Player> player){
+    cout << player->get_name() << " is the winner of the game !" <<endl;
+
+    players.clear();
+}
+
+
+
+//-------------------------------------------Game initilization-----------------------------------------------------
+
+
+
+void GameManager::initialize_players(int numOfPlayers){
+
+
+    for(int i = 1 ; i <= numOfPlayers ; i++){
+        string name = "Player " + to_string(i);   //Name of the player is by his index
+
+        shared_ptr<Player> player = make_shared<Player>(name, 1500);      //Initilize the player object 
+        player->init_player_vis(this->obj.get_path_by_idx(i));
+        players.push_back(player);
+    }
+
+}
+
+
+
+
+
+//Initilize and draw the players on the board, the board – on the given window
+void GameManager::initialize_game(sf::RenderWindow& window ){
+
+    //Creats / get the instance of the board 
+    board->get_instance();
+
+    //Draw the board on the given window
+    board->render(window);
+/*
+    //Set the players the start position
+    for(int i = 0 ; i < players.size() ; i++){
+        players[i]->set_position()
+
+    }
+
+*/
+
+
+}
+
+
+
+
+void GameManager::start_game(sf::RenderWindow& gameWindow){
+
+    cout << "Please enter the number of players :" << endl;
+    cin >> this->numOfPlayers;
+
+    // Initilize the player object & the game board
+    initialize_players(this->numOfPlayers);
+    initialize_game(gameWindow);
 
 }
 
