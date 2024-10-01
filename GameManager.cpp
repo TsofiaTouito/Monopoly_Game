@@ -19,7 +19,7 @@ void GameManager::move_player_idx(shared_ptr<Player> player, size_t index){
     }
 
     // Create an sf::Vector2f from the new square's top-left corner
-    sf::Vector2f new_position(new_square.square_area.left +10.f, new_square.square_area.top +10.f);
+    sf::Vector2f new_position(new_square.square_area.left, new_square.square_area.top);
 
     //Set the player on the new square
     player->set_position(new_position);
@@ -56,11 +56,15 @@ void GameManager::move_player(shared_ptr<Player>  player, int rollDice){
     }
 
 
+
+
+
 //---------------------------------------Handle player landing---------------------------------------------------------
 
 
 
 void GameManager::handle_street_landing(shared_ptr<Player> player, StreetSquare& street){
+    
     cout << player->get_name() <<" land in " << street.streetName <<endl;
     cout << "The amount of money you have is :" << player->get_money() <<endl;
 
@@ -123,6 +127,7 @@ void GameManager::handle_street_landing(shared_ptr<Player> player, StreetSquare&
 
 
 
+
 void GameManager::handle_train_landing(shared_ptr<Player> player, TrainSquare& train){
 
     cout << player->get_name() <<" land on Train square ." << endl;
@@ -170,6 +175,7 @@ void GameManager::handle_train_landing(shared_ptr<Player> player, TrainSquare& t
 
 
 
+
 void GameManager::handle_company_square(shared_ptr<Player> player, CompanySquare& company, int diceRoll){
 
         //In case the company has no owner
@@ -211,8 +217,6 @@ void GameManager::handle_company_square(shared_ptr<Player> player, CompanySquare
             player->pay_rent(company.get_owner(), rent);
         }
 }
-
-
 
 
 
@@ -295,6 +299,8 @@ void GameManager::handle_player_landing(shared_ptr<Player>  player, Square& squa
 }
 
 
+
+
 //Handle the surprise card functionality
 void GameManager::handle_surprise_square(shared_ptr<Player> player, SurpriseSquare& surprise){
     
@@ -307,26 +313,29 @@ void GameManager::handle_surprise_square(shared_ptr<Player> player, SurpriseSqua
 }
 
 
+
 void GameManager::handle_surprise_card(shared_ptr<Player> player, size_t index){
+    cout << player->get_name() << "recive a surprise card ! (in index " << index <<")" <<endl;
+    cout<< "The content of" << index <<" surprise card is :" <<endl;
         
     switch(index){
             
         case 0:
-        //0. Advance to Go (Collect $200) & Go (or Start) square index = 0
-        move_player_idx(player, 0);
+        cout <<"0. Advance to Go (Collect $200) " <<endl;
+        move_player_idx(player, 0);     //Go (or Start) square index = 0
         break;
 
 
         case 1:
-        //1. Bank pays you dividend of $50, change the amount to NIS
+        cout << "1. Bank pays you dividend of $50" <<endl;
         int dollar = 4;
-        int NIS_sum = dollar*50;
+        int NIS_sum = dollar*50;  //change the amount to NIS
         player->add_money(NIS_sum);
         break;
 
 
         case 2:
-        //2. Go back 3 spaces
+        cout << "2. Go back 3 spaces" << endl;
 
         //Gets the current position of the player & the square he is on
         Square& curr_square = board->get_square_by_position(player->get_position());
@@ -338,52 +347,53 @@ void GameManager::handle_surprise_card(shared_ptr<Player> player, size_t index){
 
 
         case 3:
-        //3. Go directly to Jail – do not pass Go, do not collect 200 NIS
-        move_player_idx(player, 10);     //& Jail square index = 0
+        cout << "3. Go directly to Jail – do not pass Go, do not collect 200 NIS" <<endl;
+        set_jail_state(player, true);
         break;
 
 
         case 4:
-        //4. Make general repairs on all your property – For each house pay 25 NIS – For each hotel 100 NIS
+        cout << "4. Make general repairs on all your property – For each house pay 25 NIS – For each hotel 100 NIS"<< endl;
         int houses_price = player->houses_in_owned()*25;
+        cout<< "You have " <<player->houses_in_owned() << " houses. Pay : " << houses_price << "NIS." <<endl;
         player->sub_money(houses_price);   //Pay for the houses
 
         int hotels_price = player->hotels_in_owned()*100;
+        cout<< "You have " <<player->hotels_in_owned() << " houses. Pay : " << hotels_price << "NIS." <<endl;
         player->sub_money(hotels_price);   //Pay for the hotels
         break;
 
 
         case 5:
-        //5. Pay poor tax of 15 NIS
+        cout << "5. Pay poor tax of 15 NIS" << endl;
         player->sub_money(15);
         break;
 
 
         case 6:
-        //6. Take a trip to Reading Railroad – If you pass Go collect 200 NIS
+        cout<<"6. Take a trip to Reading Railroad – If you pass Go collect 200 NIS" <<endl;
         move_player_idx(player, 5);       //Reading Railroad square index = 5
         break;
 
 
         case 7:
-        //7. Take a walk on the Boardwalk – Advance token to Boardwalk
+        cout <<"7. Take a walk on the Boardwalk – Advance token to Boardwalk" <<endl;
         move_player_idx(player, 39);      //Boardwalk square index = 5
         break;
 
 
         case 8:
-        //8. You have been elected Chairman of the Board – Pay each player 50 NIS
-        /* for(int i= 0 ; i < this->numOfPlayers ; i++){
+        cout <<" 8. You have been elected Chairman of the Board – Pay each player 50 NIS" <<endl;
+         for(int i= 0 ; i < this->players.size() ; i++){
             if(players[i] != player){
-              player->pay_rent(50, players[i]);
+              player->pay_rent(players[i], 50);
             }
-        }*/
-
+        }
         break;
 
 
         case 9:
-        //9. Your building loan matures – Collect $150
+        cout << "9. Your building loan matures – Collect $150" <<endl;
         int dollar = 4;
         int sum = dollar*150;
         player->add_money(sum);
@@ -391,42 +401,50 @@ void GameManager::handle_surprise_card(shared_ptr<Player> player, size_t index){
 
 
         case 10:
-        //10. Get out of Jail Free – This card may be kept until needed or traded
-        player->set_jail_card(true);
-        //Get the player out_of_jail
+        cout<< "10. Get out of Jail Free – This card may be kept until needed or traded" <<endl;
+        
+        if (player->is_in_jail()) { // Check if the player is in jail
+            set_jail_state(player, false);   // Get the player out of jail
+        } 
+        else {
+            player->set_jail_card(true);     // Give the player the "Get Out of Jail Free" card
+        }
         break;
 
+
         case 11:
-        //11. Advance to Illinois Ave. – If you pass Go, collect 200 NIS
+        cout << "11. Advance to Illinois Ave. – If you pass Go, collect 200 NIS " <<endl;
         move_player_idx(player, 24);        //Illinois Ave square index = 24
         break;
 
 
         case 12:
-        //12. Advance to St. Charles Place – If you pass Go, collect 200 NIS
+        cout << "12. Advance to St. Charles Place – If you pass Go, collect 200 NIS" <<endl;
         move_player_idx(player, 11);        //St. Charles Place square index = 11
         break;
 
 
         case 13:
-        //13. You are assessed for street repairs – 40 NIS per house, 115 NIS per hotel
-          int houses_price = player->houses_in_owned()*40;
+        cout << "13. You are assessed for street repairs – 40 NIS per house, 115 NIS per hotel" << endl;
+        int houses_price = player->houses_in_owned()*40;
+        cout<< "You have " <<player->houses_in_owned() << " houses. Pay : " << houses_price << "NIS." <<endl;
         player->sub_money(houses_price);   //Pay for the houses
 
         int hotels_price = player->hotels_in_owned()*115;
+        cout<< "You have " <<player->hotels_in_owned() << " houses. Pay : " << hotels_price << "NIS." <<endl;
         player->sub_money(hotels_price);   //Pay for the hotels
 
         break;
 
 
         case 14:
-        //14. Get into jail
-        //player in jail
+        cout <<"14. Advance to Go (Collect $200) " <<endl;
+        move_player_idx(player, 0);     //Go (or Start) square index = 0
         break;
 
 
         case 15:
-        //15.Go to Free Parking – If you pass Go, collect 200 NIS
+        cout << "15.Go to Free Parking – If you pass Go, collect 200 NIS" << endl;
         move_player_idx(player, 20);      //St. Charles Place square index = 20
         break;
 
@@ -439,11 +457,6 @@ void GameManager::handle_surprise_card(shared_ptr<Player> player, size_t index){
 
 //Player buy a street
 void GameManager::buy_street(shared_ptr<Player> buyer, StreetSquare& street){
-
-    if(street.square_type != "Street Square"){
-        cout << "The square is'nt a StreetSquare ." << endl;
-        return;
-    }
 
     if(street.get_owner() != nullptr){
         cout << "The street already has an owner ." << endl;
@@ -458,12 +471,13 @@ void GameManager::buy_street(shared_ptr<Player> buyer, StreetSquare& street){
     }
 
     //The street doesn't have an owner and the buyer can afford the purchase
-
+    cout << "The player pay for the street " <<endl;
     buyer->sub_money(streetPrice);  //Pay for the street
     buyer->add_street(street);      //Add the street to the buyer list of street he owned
     
     //Set the buyer to be the owner of the street
     street.set_owner(buyer);        
+    cout << buyer->get_name() << "Is the owner of "<< street.streetName <<endl;
 
 }
 
@@ -475,11 +489,6 @@ void GameManager::buy_street(shared_ptr<Player> buyer, StreetSquare& street){
 //Player buy a train
 void GameManager::buy_train(shared_ptr<Player> buyer, TrainSquare& train){
 
-
-    if(train.square_type != "Train Square"){
-        cout << "The square is'nt a TrainSquare ." << endl;
-        return;
-    }
 
     if(train.get_owner() != nullptr){
         cout << "The train already has an owner ." << endl;
@@ -499,7 +508,8 @@ void GameManager::buy_train(shared_ptr<Player> buyer, TrainSquare& train){
     buyer->add_train(train);      //Add the train to the buyer list of trains he owned
     
     //Set the buyer to be the owner of the train
-    train.set_owner(buyer);        
+    train.set_owner(buyer);     
+    cout << buyer->get_name() << "Is the owner of the train ."<< endl;   
 
 }
     
@@ -529,6 +539,7 @@ void GameManager::buy_company(shared_ptr<Player>  buyer, CompanySquare& company)
     
     //Set the buyer to be the owner of the company
     company.set_owner(buyer);        
+    cout << buyer->get_name() << "Is the owner of the company ." << endl;
 
 }
 
@@ -609,6 +620,7 @@ void GameManager::build_hotel(shared_ptr<Player> buyer, StreetSquare& street,vec
 
 
 
+
 //----------------------------------------------Jail handling-------------------------------------------------------
 
 void GameManager::set_jail_state(shared_ptr<Player> player, bool state){
@@ -629,6 +641,8 @@ void GameManager::set_jail_state(shared_ptr<Player> player, bool state){
     }
 
 }
+
+
 
 //-------------------------------------------Nankruptcy handle---------------------------------------------------
 
@@ -653,14 +667,13 @@ void GameManager::handle_nankruptcy(shared_ptr<Player> player){
 
 
 
-
-
 void GameManager::handle_nankruptcy_(shared_ptr<Player> bankruptPlayer, shared_ptr<Player> player){
 
 
     cout<< bankruptPlayer->get_name() << " is bankrupt ." <<endl;
     
     //All the assets of the bankrupt player is move to the player who owns the debt
+    cout << "Move all assets of " << bankruptPlayer->get_name() << " to " << player->get_name() << endl;;
     bankruptPlayer->move_assets(player);
 
     // Remove the player from the game
@@ -679,17 +692,20 @@ void GameManager::handle_nankruptcy_(shared_ptr<Player> bankruptPlayer, shared_p
   
   
   
-  
 int GameManager::roll_dice() {
 
+    cout << "Roll dices...." <<endl;
     int dice1 = rand() % 6 + 1;   // Roll first die (1 to 6)
     int dice2 = rand() % 6 + 1;   // Roll second die (1 to 6)
+    cout << "The outcome of the dices roll is (" << dice1 << "," << dice2 << ")" << endl;
 
-    // The outcome is a double 
     if(dice1 == dice2){
+    cout<< "The outcom is a double !" << endl;
         this->double_outcome = true;
         this->double_counter++;
     }
+
+    cout << "Player need to move " << dice1 + dice2 << "steps forward" << endl;
     return dice1 + dice2;
 }
 
@@ -719,17 +735,20 @@ void GameManager::play_turn(){
 
         //The player get out from jail in this turn
         else if(currPlayer->turnsInJail > 3){
-
+            
+            cout << "The player can get out of jail under this conditions :" << endl;
+            cout << "Pay 50 NIS or double dice roll outcome ." << endl;
             int diceRoll = roll_dice();
                 
-            //Condition to get out from jail : Pay 50 NIS or double dice roll outcome
+            //Condition to get out from jail 
             if(!currPlayer->can_afford(50) && !double_outcome){
                 cout << "the player can't afford the price to get out from jail and the outcome isn't double . " << endl;
-                //The player must leave the game
+                cout << "The player must leave the game" << endl;
                 handle_nankruptcy(currPlayer);
             }
 
             if(double_outcome || currPlayer->sub_money(50)){
+                cout <<"Get the player out of jail." << endl;
                 set_jail_state(currPlayer, false);
             }
         }
@@ -745,19 +764,24 @@ void GameManager::play_turn(){
         //move the player according to the roll dice result and handle landing
         move_player(currPlayer, diceRoll);
 
-        //In the 3 time the outcom is double, the player sent into jail
+
         if(double_counter >= 3){
+            cout << "In the 3 time the outcom is double, the player sent into jail" <<endl;
             set_jail_state(currPlayer, true);
+
+            //initilize double variables
+            double_counter = 0;
+            double_outcome = false;
         }
 
-        //Another turn for the current player
         if(double_outcome && double_counter != 3){
+            cout <<"Another turn for the current player, as couse of double outcom !" << endl;
             double_counter++;
             cout << currPlayer->get_name() <<" entitled to another turn ." << endl;
         }
 
-        //Promote the corrent player index
         else{
+            cout <<"Promote the corrent player index ." <<endl;
             currPlayerIdx = (currPlayerIdx + 1) % players.size();
         }
     }
@@ -821,7 +845,6 @@ void GameManager::initialize_players(int numOfPlayers){
 
 
 
-
 //Initilize and draw the players on the board, the board – on the given window
 void GameManager::initialize_game(sf::RenderWindow& window ){
 
@@ -838,7 +861,6 @@ void GameManager::initialize_game(sf::RenderWindow& window ){
     }
 
 */
-
 
 }
 
