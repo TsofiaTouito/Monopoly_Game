@@ -8,7 +8,7 @@
 #include <memory>
 #include "UtilitySquare.hpp"
 #include "StreetSquare.hpp"
-#include "SpecialCardSquare.hpp"
+#include "SpecialSquare.hpp"
 
 using namespace std;
 
