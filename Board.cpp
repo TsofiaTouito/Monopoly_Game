@@ -67,6 +67,16 @@ Board::Board() {
     squares.push_back(factory.create_square("Tax Square", 38, sf::FloatRect(861, 670, 125, 76), {}));
     squares.push_back(factory.create_square("Street Square", 39, sf::FloatRect(861, 749, 125, 76), {"BOARDWALK", "Blue"}));
     
+
+
+     // Filter and copy ownership of StreetSquares
+        for (const auto& square : squares) {
+            // Attempt to cast the base class pointer (Square) to derived class (StreetSquare)
+            if (StreetSquare* street = dynamic_cast<StreetSquare*>(square.get())) {
+                // If the cast is successful, create a new unique_ptr for the StreetSquare
+                this->allStreets.push_back(std::make_unique<StreetSquare>(*street)); // Copy the StreetSquare
+        }
+    }
 }
 
 
@@ -96,7 +106,6 @@ void Board::render(sf::RenderWindow& window) {
 
     
     
-    
 Square& Board::get_square_by_position(const sf::Vector2f& player_position) {
 
     for(const auto& square : squares){  
@@ -119,4 +128,11 @@ Square& Board::get_square_by_position(const sf::Vector2f& player_position) {
 
 Square& Board::get_square_by_index(int index) {
     return *squares[index];
+}
+
+
+
+
+vector<shared_ptr<StreetSquare>> Board::get_allStreets(){
+    return this->allStreets;
 }
