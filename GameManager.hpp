@@ -20,7 +20,7 @@ class GameManager{
 
     private:
     Board* board;
-
+    
     int numOfPlayers;
     int currPlayerIdx;
     bool double_outcome {false};
@@ -30,6 +30,8 @@ class GameManager{
 
     //------------------------landing handling----------------------------------
     
+
+    sf::Vector2f calc_player_position(std::shared_ptr<Player> player, Square& square);
 
     void handle_street_landing(shared_ptr<Player>, StreetSquare&);
 
@@ -93,6 +95,8 @@ class GameManager{
     //--------------------------Game flow managment--------------------------------
 
     public:
+    //Constructor
+    GameManager() : board(nullptr), numOfPlayers(0), currPlayerIdx(0) {};
     vector<shared_ptr<Player>> players;
 
 
@@ -108,9 +112,13 @@ class GameManager{
     void announce_winner(shared_ptr<Player>);
 
 
-    //----------Initilize game---------------
+    //----------------Initilize game-------------------------
+
+    //Get the start position for locate the players on the start square
+    sf::Vector2f get_start_position(int index);
+
     //Create the players objects
-    void initialize_players(int );
+    void initialize_players(int , sf::RenderWindow& );
 
     //Initilize and draw the players on the board, the board – on the given window
     void initialize_game(sf::RenderWindow& window );
@@ -121,4 +129,5 @@ class GameManager{
 
 
 };
+
 
