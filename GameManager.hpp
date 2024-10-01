@@ -11,7 +11,7 @@ using namespace std;
 #include "Board.hpp"
 #include "Square.hpp"
 #include "Player.hpp"
-#include "SpecialCardSquare.hpp"
+#include "SpecialSquare.hpp"
 #include "GUI_Manager.hpp"
 
 
