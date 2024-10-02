@@ -44,15 +44,15 @@ The game structure utilizes an object-oriented approach, with a base class and m
 ### Class Hierarchy
 - **Square** (Base Class)
   - **StreetSquare**
-  - **TrainSquare**
   - **UtilitySquare**
-  - **SpecialSquare**
+    - **TrainSquare**
     - **JailSquare**
-    - **SurpriseSquare**
     - **TaxSquare**
     - **FreeParkingSquare**
     - **GoToJailSquare**
     - **CompanySquare**
+  - **SpecialSquare**
+    - **SurpriseSquare**
 
 ## Roles of Each Class
 - **Square**: The parent class for all squares, providing a common interface for derived classes.
@@ -75,7 +75,7 @@ To run the game, ensure you have the necessary dependencies installed, including
 
 ### Compilation
 ```bash
-g++ -o MonopolyGame MonopolyGame.cpp GameManager.cpp GUI_Manager.cpp Player.cpp Board.cpp StreetSquare.cpp SpecialSquare.cpp UtilitySquare.cpp
+make
 ```
 
 ### Running the Game
