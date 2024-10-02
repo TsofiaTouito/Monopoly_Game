@@ -1,9 +1,15 @@
 //tsofiatouito2@gmail.com 
+#ifndef GUI_MANAGER_HPP // Check if MY_HEADER_HPP is not defined
+#define GUI_MANAGER_HPP  // Define MY_HEADER_HPP
 
 
 #include <iostream>
 #include <string>
 #include <SFML/Graphics.hpp>
+#include <memory>
+
+#include "Player.hpp"
+#include "StreetSquare.hpp"
 
 using namespace std;
 
@@ -20,30 +26,29 @@ class Drawable{
     string path_to_player6 = "/home/user/Downloads/player6.png";
     string path_to_player7 = "/home/user/Downloads/Player7.png";
     string path_to_player8 = "/home/user/Downloads/player8.png";
-    
-    public:
 
-    std::string get_path_by_idx(int index) {
-        
-        switch (index) {
-            case 1:
-                return path_to_player1;
-            case 2:
-                return path_to_player2;
-            case 3:
-                return path_to_player3;
-            case 4:
-                return path_to_player4;
-            case 5:
-                return path_to_player5;
-            case 6:
-                return path_to_player6;
-            case 7:
-                return path_to_player7;
-            case 8:
-                return path_to_player8;
-            default:
-                return "Invalid index"; // Handle invalid index
-        }
-    }
+
+    public:
+    sf::RenderWindow* window;
+
+    // Constructor
+    Drawable() : window(nullptr) {};
+
+
+    // Set window reference
+    void set_window(sf::RenderWindow& window);
+
+    //Create & draw an house object on board
+    void create_house(shared_ptr<Player> owner, StreetSquare& street);
+
+    //Create & draw an house object on board
+    void create_hotel(std::shared_ptr<Player> owner, StreetSquare& street);
+
+    //Return the path to the player image by player index
+    std::string get_path_by_idx(int index);
+
+
 };
+
+
+#endif GUI_MANAGER_HPP 
